@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include <string>
 #include <sstream>
 #include <algorithm>
@@ -32,35 +33,28 @@ void PrintHeader(int level) {
 void GameLoop(MineSweeper* m) {
   while (!m->isGameEnd()) {
     m->PrintMineField();
-
     m->CheckWin();
-
-    if (!m->isGameEnd()) {
-      InGameTransfer(m);
-    }
-    else { 
-      break;
-    }
+    InGameTransfer(m);
   }
 }
 
 int main() {
-  string scripts_client;
-  cout << "Level 1: Beginner (9x9, 10)" << endl;
-  cout << "Level 2: Intermediate (16x16, 40)" << endl;
-  cout << "Level 3: Expert (30x16, 10)" << endl;
-  cout << "Level 4: Custom" << endl;
+  while (1) {
+    string scripts_client;
+    cout << "Level 1: Beginner (9x9, 10)" << endl;
+    cout << "Level 2: Intermediate (16x16, 40)" << endl;
+    cout << "Level 3: Expert (30x16, 10)" << endl;
+    cout << "Level 4: Custom" << endl;
 
-  MineSweeper minesweeper(StartGameTransfer());
+    unique_ptr<MineSweeper> minesweeper(StartGameTransfer());
 
-  // loop until the game ends
-  GameLoop(&minesweeper);
+    // loop until the game ends
+    GameLoop(minesweeper.get());
+    minesweeper->EndGame(minesweeper->isWin());  
+  }
 
-  minesweeper.EndGame(minesweeper.isWin());  
-  
-  int x;
-  cin >> x;
-
+  cin.ignore();
+  cin.get();
   return 0;  
 }
 

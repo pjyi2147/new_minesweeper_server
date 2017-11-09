@@ -9,5 +9,5 @@ std::string InfoMinefield(MineSweeper* m);
 void ScriptExecutor(std::string command, MineSweeper* m);
 
 // main
-MineSweeper& StartGameTransfer();
+unique_ptr<MineSweeper> StartGameTransfer();
 void InGameTransfer(MineSweeper* m);

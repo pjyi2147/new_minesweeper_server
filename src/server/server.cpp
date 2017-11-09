@@ -48,21 +48,27 @@ void ScriptExecutor(string script, MineSweeper* m) {
   int col = stoi(tokens[1]);
   int row = stoi(tokens[2]);
   
-  if (command == "E")
-  {
-    m->setRevealedTile(col, row, true);
+  if (m->getCol() < col && col < 0
+      && m->getRow() < row && row < 0) {
+
+    cout << "The command is out of bounds."
+         << "Aborting the command " << "\"" << command << "\""<< endl;
   }
-  if (command == "F")
+  else if (command == "E")
+  {
+    m->RevealSingleClick(col, row);
+  }
+  else if (command == "F")
   {
     m->setFlagTile(col, row, true);
   }
-  if (command == "D")
+  else if (command == "D")
   {
     m->RevealDoubleClick(col, row);
   }
 }
 
-MineSweeper& StartGameTransfer() {
+unique_ptr<MineSweeper> StartGameTransfer() {
   cout << "Server boot up on port 1234" << endl;
   try
   {
@@ -95,17 +101,17 @@ MineSweeper& StartGameTransfer() {
     order_col = stoi(tokens[1]);
     order_row = stoi(tokens[2]);
 
-    MineSweeper static m_copy(col, row, mine_num);
-    m_copy.CreateMineField(order_col, order_row);
+    unique_ptr<MineSweeper> m_return(new MineSweeper(col, row, mine_num));
+    m_return->CreateMineField(order_col, order_row);
 
     // write
     cout << "writing messages..." << endl;
     
-    auto message = InfoMinefield(&m_copy);
+    auto message = InfoMinefield(m_return.get());
     boost::system::error_code ignored_error;
     boost::asio::write(socket, boost::asio::buffer(message), ignored_error);
-  
-    return m_copy;
+    
+    return move(m_return);
   }
   catch (std::exception& e)
   {
@@ -126,7 +132,6 @@ void InGameTransfer(MineSweeper* m) {
     cout << "Client connected" << endl;
 
     // read
-    // @TODO: When making the client, make sure this part works as well.
     boost::array<char, 600> buf;
     boost::system::error_code error;
     size_t len = socket.read_some(boost::asio::buffer(buf), error);
