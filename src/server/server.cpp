@@ -48,8 +48,8 @@ void ScriptExecutor(string script, MineSweeper* m) {
   int col = stoi(tokens[1]);
   int row = stoi(tokens[2]);
   
-  if (m->getCol() < col && col < 0
-      && m->getRow() < row && row < 0) {
+  if (m->getCol() <= col || col < 0
+      || m->getRow() <= row || row < 0) {
 
     cout << "The command is out of bounds."
          << "Aborting the command " << "\"" << command << "\""<< endl;
